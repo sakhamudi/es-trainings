@@ -1,0 +1,38 @@
+def springVersion = "3.2.9"
+
+def SPRING = [
+        "org.springframework:spring-context-support:4.2.+",
+        "org.springframework:spring-oxm:${springVersion}.RELEASE",
+        "org.springframework:spring-jdbc:3.1.0.RELEASE"
+]
+
+def SPRING_BOOT = [
+        "com.github.ulisesbocchio:jasypt-spring-boot-starter:1.2",
+        "org.springframework.boot:spring-boot-starter-web:1.2.7.RELEASE",
+        "org.springframework.boot:spring-boot-starter-actuator",
+        "org.springframework.boot:spring-boot-starter-data-jpa",
+        "org.springframework.boot:spring-boot-starter-test"
+]
+
+def MISC = [
+        'commons-collections:commons-collections:3.2.1',
+        'org.projectlombok:lombok:1.16.16',
+        'com.mangofactory:swagger-springmvc:1.0.2',
+        'org.apache.commons:commons-lang3:3.4',
+]
+
+def SPRING_TEST = [
+		"com.googlecode.junit-toolbox:junit-toolbox:1.9",
+        "org.mockito:mockito-all:1.10.19",
+        "org.springframework:spring-test:${springVersion}.RELEASE"
+]
+
+def SPRING_BOOT_TEST = [
+        "org.springframework.boot:spring-boot-starter-test:1.2.+"
+]
+
+dependencies {
+    compile SPRING, SPRING_BOOT, MISC, SPRING_TEST
+    testCompile SPRING_TEST, SPRING_BOOT_TEST
+    functionalTestSourceCompile SPRING, MISC
+}

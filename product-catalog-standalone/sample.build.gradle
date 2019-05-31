@@ -1,0 +1,66 @@
+
+buildscript {
+    repositories {
+        ivy {
+            layout 'maven'
+            url "http://artifactory.nisum.dev/artifactory/maven-repos"
+        }
+        maven {
+            url project.releaseRepo
+        }
+        mavenCentral()
+        maven { url "http://artifactory.nisum.dev/artifactory/maven-repos" }
+    }
+    dependencies {
+        classpath project.gradlePlugin
+        classpath 'com.nisum.gradle.plugins:nisum-sonar-plugin:2.+'
+        classpath 'com.nisum:nisum-sonar-plugin:2.+'
+        classpath 'com.nisum.projects:code-quality-plugin:1.0.6'
+        classpath 'org.springframework.boot:spring-boot-gradle-plugin:1.2.3.RELEASE'
+    }
+}
+
+defaultTasks 'clean', 'build', 'testAll', 'functionalSmokeTestsAgainstLocal', 'gatling'
+
+description = 'product-catalog-standalone'
+
+apply plugin: 'java'
+apply plugin: 'idea'
+apply plugin: 'eclipse'
+apply plugin: 'os-package'
+apply plugin: 'nisum-pipeline'
+apply plugin: 'spring-boot'
+apply plugin: 'nisum-sonarqube'
+
+dependencies {
+    compile "org.scala-lang:scala-library:2.11.8"
+}
+
+apply from: 'gradle/tests.gradle'
+apply from: 'gradle/dependencies.gradle'
+apply from: 'gradle/eclipse.gradle'
+apply from: 'gradle/idea.gradle'
+apply from: 'gradle/git.gradle'
+apply from: 'gradle/artifactory.gradle'
+apply from: 'gradle/sonar.gradle'
+apply from: 'gradle/performance.gradle'
+
+group = "com.nisum.pem" // used to specify artifactory upload location, and possibly other stuff
+version = System.getenv("BUILD_NUMBER") ?: "local"
+
+processResources {
+    from(sourceSets.main.resources.srcDirs) {
+        include '**/version.properties'
+        filter { String line -> line.replace "@buildversion", version }
+        filter { String line -> line.replace "@gitcommit", System.getenv("GIT_COMMIT") ?: "local" }
+        filter { String line -> line.replace "@buildtimestamp", new Date().toString() }
+    }
+}
+
+tasks.withType(JavaCompile) {
+    options.compilerArgs << "-Xlint:deprecation"
+}
+
+springBoot {
+    mainClass 'com.nisum.Application'
+}
